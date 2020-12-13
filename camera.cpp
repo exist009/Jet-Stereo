@@ -27,21 +27,6 @@ bool Camera::capture()
         return false;
     }
 
-//    cv::Mat mat_gray;
-//    cv::cvtColor(mat, mat_gray, cv::COLOR_BGR2GRAY);
-
-    //emit frame(QImage(mat_gray.data, mat_gray.cols, mat_gray.rows, mat_gray.step, QImage::Format_Grayscale8));
-
-//    std::vector<cv::Rect> object_list;
-//    std::vector<int> detect_list;
-
-//    this->cascade.detectMultiScale(mat_gray, object_list, detect_list, 1.3, 5);
-
-//    for (const auto &object : object_list)
-//    {
-//        cv::rectangle(mat, object, cv::Scalar(255, 0, 0), 2);
-//    }
-
     cv::cvtColor(mat, mat, cv::COLOR_BGR2RGB);
 
     emit frame(mat);
