@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = camera
+TARGET = Jet-Stereo
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -25,20 +25,23 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++14
 
 INCLUDEPATH += /usr/include/opencv4
+INCLUDEPATH += opencv2
 
 LIBS += -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc -lopencv_objdetect
 
 SOURCES += \
-        main.cpp \
-        index.cpp \
-    camera.cpp \
-    worker.cpp
+	imu.cpp \
+	main.cpp \
+	index.cpp \
+	camera.cpp \
+	worker.cpp
 
 HEADERS += \
-        index.h \
-    camera.h \
-    utils.h \
-    worker.h
+	imu.h \
+	index.h \
+	camera.h \
+	utils.h \
+	worker.h
 
 FORMS += \
-        index.ui
+	index.ui

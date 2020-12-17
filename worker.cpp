@@ -3,8 +3,7 @@
 #include <QDebug>
 #include <QThread>
 
-Worker::Worker(Sensor sensor, QObject *parent)
-    : QObject(parent), camera(nullptr), sensor(sensor), run(true) { }
+Worker::Worker(Sensor sensor, QObject *parent) : QObject(parent), camera(nullptr), sensor(sensor), run(true) { }
 Worker::~Worker() { }
 
 void Worker::process()
