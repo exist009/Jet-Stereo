@@ -25,7 +25,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++14
 
 INCLUDEPATH += /usr/include/opencv4
-INCLUDEPATH += opencv2
 
 LIBS += -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc -lopencv_objdetect
 
@@ -34,14 +33,16 @@ SOURCES += \
 	main.cpp \
 	index.cpp \
 	camera.cpp \
-	worker.cpp
+    worker_imu.cpp \
+    worker_camera.cpp
 
 HEADERS += \
 	imu.h \
 	index.h \
 	camera.h \
 	utils.h \
-	worker.h
+    worker_imu.h \
+    worker_camera.h
 
 FORMS += \
 	index.ui

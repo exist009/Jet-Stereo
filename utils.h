@@ -50,10 +50,10 @@ namespace ICM20948
 		const float  gyro_500dps  = 65.5;  //! LSB/dps
 		const float  gyro_1000dps = 32.8;  //! LSB/dps
 		const float  gyro_2000dps = 16.4;  //! LSB/dps
-		const qint32 accel_2g     = 16384; //! LSB/g
-		const qint32 accel_4g     = 8192;  //! LSB/g
-		const qint32 accel_8g     = 4096;  //! LSB/g
-		const qint32 accel_16g    = 2048;  //! LSB/g
+        const float  accel_2g     = 16384; //! LSB/g
+        const float  accel_4g     = 8192;  //! LSB/g
+        const float  accel_8g     = 4096;  //! LSB/g
+        const float  accel_16g    = 2048;  //! LSB/g
 		const float  mag_4900ut   = 0.15;  //! uT/LSB
 	}
 

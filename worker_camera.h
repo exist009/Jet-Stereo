@@ -1,16 +1,16 @@
-#ifndef WORKER_H
-#define WORKER_H
+#ifndef WORKER_CAMERA_H
+#define WORKER_CAMERA_H
 
 #include <QObject>
 
 #include <camera.h>
 
-class Worker : public QObject
+class Worker_camera : public QObject
 {
     Q_OBJECT
 public:
-    explicit Worker(Sensor sensor, QObject *parent = nullptr);
-    ~Worker();
+    explicit Worker_camera(Sensor sensor, QObject *parent = nullptr);
+    ~Worker_camera();
 
 signals:
     void finished();
@@ -26,4 +26,4 @@ private:
     volatile bool run;
 };
 
-#endif // WORKER_H
+#endif // WORKER_CAMERA_H

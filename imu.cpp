@@ -2,15 +2,16 @@
 
 #include <utils.h>
 
-//#include <linux/i2c-dev.h>
-//#include <sys/ioctl.h>
-//#include <sys/types.h>
-//#include <fcntl.h>
+#include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include <QDebug>
 #include <QThread>
 
-IMU::I2C::I2C(const QString &dev) : fd(open(dev, O_RDWR))
+IMU::I2C::I2C(const QString &dev) : fd(open(dev.toStdString().data(), O_RDWR))
 {
 	if (this->fd < 0)
 	{
@@ -34,7 +35,7 @@ quint8 IMU::I2C::read_1b(quint8 address, quint8 reg)
 	quint8 result;
 
 	write(this->fd, &reg, 1);
-	read(this->fd, &result, 1)
+    read(this->fd, &result, 1);
 
 	return result;
 }
@@ -119,9 +120,9 @@ IMU::Device::Magnetometer IMU::Device::get_magnetometer()
 
 	Magnetometer magnetometer;
 
-	magnetometer.x = data.x / ICM20948::SSF::mag_4900ut;
-	magnetometer.y = data.y / ICM20948::SSF::mag_4900ut;
-	magnetometer.z = data.z / ICM20948::SSF::mag_4900ut;
+    magnetometer.x = data.x * ICM20948::SSF::mag_4900ut;
+    magnetometer.y = data.y * ICM20948::SSF::mag_4900ut;
+    magnetometer.z = data.z * ICM20948::SSF::mag_4900ut;
 
 	return magnetometer;
 }
@@ -263,9 +264,9 @@ IMU::Device::Sensor_data IMU::Device::read_gyroscope()
 {
 	Sensor_data value;
 
-	value.x = this->i2c->read_2b(ICM20948::Address::icm20948, ICM20948::Register::add_gyro_xout_l, ICM20948::Register::add_gyro_xout_h);
-	value.y = this->i2c->read_2b(ICM20948::Address::icm20948, ICM20948::Register::add_gyro_yout_l, ICM20948::Register::add_gyro_yout_h);
-	value.z = this->i2c->read_2b(ICM20948::Address::icm20948, ICM20948::Register::add_gyro_zout_l, ICM20948::Register::add_gyro_zout_h);
+    value.x = this->i2c->read_2b(ICM20948::Address::icm20948, ICM20948::Register::add_gyro_xout_l, ICM20948::Register::add_gyro_xout_h);
+    value.y = this->i2c->read_2b(ICM20948::Address::icm20948, ICM20948::Register::add_gyro_yout_l, ICM20948::Register::add_gyro_yout_h);
+    value.z = this->i2c->read_2b(ICM20948::Address::icm20948, ICM20948::Register::add_gyro_zout_l, ICM20948::Register::add_gyro_zout_h);
 
 	Sensor_data result;
 

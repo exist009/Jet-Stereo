@@ -9,10 +9,10 @@ namespace IMU
 {
 	struct i2c_exception : public std::exception
 	{
-			const char *what() const throw()
-			{
-				return "Failed to open I2C bus";
-			}
+        const char *what() const throw()
+        {
+            return "Failed to open I2C bus";
+        }
 	};
 
 	class I2C
@@ -23,8 +23,8 @@ namespace IMU
 
 		public:
 			quint8 read_1b(quint8 address, quint8 reg);
+            qint16 read_2b(quint8 address, quint8 reg_low, quint8 reg_high);
 			void write_1b(quint8 address, quint8 reg, quint8 value);
-			qint16 read_2b(quint8 address, quint8 reg_low, quint8 reg_high);
 
 		private:
 			qint32 fd;
@@ -58,7 +58,6 @@ namespace IMU
 			float y;
 			float z;
 		};
-
 
 	public:
 		Gyroscope get_gyroscope();
@@ -109,5 +108,9 @@ namespace IMU
 		void calculate_average(Average_data &average, const Sensor_data &value, Sensor_data &result);
 	};
 }
+
+Q_DECLARE_METATYPE(IMU::Device::Gyroscope)
+Q_DECLARE_METATYPE(IMU::Device::Accelerometer)
+Q_DECLARE_METATYPE(IMU::Device::Magnetometer)
 
 #endif // IMU_H
