@@ -59,10 +59,18 @@ namespace IMU
 			float z;
 		};
 
+		struct Angle
+		{
+			float yaw;
+			float pitch;
+			float roll;
+		};
+
 	public:
 		Gyroscope get_gyroscope();
 		Accelerometer get_accelerometer();
 		Magnetometer get_magnetometer();
+		Angle get_angle(const Gyroscope &gyroscope, const Accelerometer &accelerometer, const Magnetometer &magnetometer);
 
 	private:
 
@@ -83,12 +91,23 @@ namespace IMU
 			Sensor_data buffer[8];
 		};
 
+		struct Angle_ratio
+		{
+			Angle_ratio() : q0(1.0f), q1(0.0f), q2(0.0f), q3(0.0f) {}
+
+			float q0;
+			float q1;
+			float q2;
+			float q3;
+		};
+
 	private:
 		I2C *i2c;
 		Sensor_data gyroscope_offset;
 		Average_data average_gyroscope;
 		Average_data average_accelerometer;
 		Average_data average_magnetometer;
+		Angle_ratio ratio;
 
 	private:
 		void init();
@@ -112,5 +131,6 @@ namespace IMU
 Q_DECLARE_METATYPE(IMU::Device::Gyroscope)
 Q_DECLARE_METATYPE(IMU::Device::Accelerometer)
 Q_DECLARE_METATYPE(IMU::Device::Magnetometer)
+Q_DECLARE_METATYPE(IMU::Device::Angle)
 
 #endif // IMU_H

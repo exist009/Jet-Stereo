@@ -11,7 +11,12 @@ void Worker_imu::process()
 
     while (this->run)
     {
-        emit data(this->device->get_gyroscope(), this->device->get_accelerometer(), this->device->get_magnetometer());
+		auto gyroscope = this->device->get_gyroscope();
+		auto accelerometer = this->device->get_accelerometer();
+		auto magnetometer = this->device->get_magnetometer();
+		auto angle = this->device->get_angle(gyroscope, accelerometer, magnetometer);
+
+        emit data(gyroscope, accelerometer, magnetometer, angle);
         QThread::msleep(100);
     }
 

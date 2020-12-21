@@ -14,7 +14,7 @@ public:
 
 signals:
     void finished();
-    void data(const IMU::Device::Gyroscope &gyroscope, const IMU::Device::Accelerometer &accelerometer, const IMU::Device::Magnetometer &magnetometer);
+    void data(const IMU::Device::Gyroscope &gyroscope, const IMU::Device::Accelerometer &accelerometer, const IMU::Device::Magnetometer &magnetometer, const IMU::Device::Angle &angle);
 
 public slots:
     void process();

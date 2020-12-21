@@ -15,6 +15,7 @@ Index::Index(QWidget *parent) : QWidget(parent), ui(new Ui::Index)
     qRegisterMetaType<IMU::Device::Gyroscope>();
     qRegisterMetaType<IMU::Device::Accelerometer>();
     qRegisterMetaType<IMU::Device::Magnetometer>();
+	qRegisterMetaType<IMU::Device::Angle>();
 
     for (auto i = 0; i < 2; i++)
     {
@@ -54,7 +55,7 @@ Index::Index(QWidget *parent) : QWidget(parent), ui(new Ui::Index)
     connect(worker_imu, &Worker_imu::finished, thread_imu, &QThread::quit, Qt::DirectConnection);
     connect(worker_imu, &Worker_imu::finished, worker_imu, &Worker_imu::deleteLater, Qt::DirectConnection);
 
-    connect(worker_imu, &Worker_imu::data, this, [&](const IMU::Device::Gyroscope &gyroscope, const IMU::Device::Accelerometer &accelerometer, const IMU::Device::Magnetometer &magnetometer)
+    connect(worker_imu, &Worker_imu::data, this, [&](const IMU::Device::Gyroscope &gyroscope, const IMU::Device::Accelerometer &accelerometer, const IMU::Device::Magnetometer &magnetometer, const IMU::Device::Angle &angle)
     {
         this->ui->imu_gyroscope_x->setText(QString::number(gyroscope.x));
         this->ui->imu_gyroscope_y->setText(QString::number(gyroscope.y));
@@ -67,6 +68,10 @@ Index::Index(QWidget *parent) : QWidget(parent), ui(new Ui::Index)
         this->ui->imu_magnetometer_x->setText(QString::number(magnetometer.x));
         this->ui->imu_magnetometer_y->setText(QString::number(magnetometer.y));
         this->ui->imu_magnetometer_z->setText(QString::number(magnetometer.z));
+
+        this->ui->imu_angle_yaw->setText(QString::number(angle.yaw));
+        this->ui->imu_angle_pitch->setText(QString::number(angle.pitch));
+        this->ui->imu_angle_roll->setText(QString::number(angle.roll));
     });
 
     connect(this, &Index::stop, worker_imu, &Worker_imu::stop, Qt::DirectConnection);

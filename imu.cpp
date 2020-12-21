@@ -10,6 +10,7 @@
 
 #include <QDebug>
 #include <QThread>
+#include <QtMath>
 
 IMU::I2C::I2C(const QString &dev) : fd(open(dev.toStdString().data(), O_RDWR))
 {
@@ -125,6 +126,97 @@ IMU::Device::Magnetometer IMU::Device::get_magnetometer()
     magnetometer.z = data.z * ICM20948::SSF::mag_4900ut;
 
 	return magnetometer;
+}
+
+IMU::Device::Angle IMU::Device::get_angle(const IMU::Device::Gyroscope &gyroscope, const IMU::Device::Accelerometer &accelerometer, const IMU::Device::Magnetometer &magnetometer)
+{
+	auto g(gyroscope);
+	auto a(accelerometer);
+	auto m(magnetometer);
+
+	g.x = g.x / 32.8 * 0.0175;
+	g.y = g.y / 32.8 * 0.0175;
+	g.z = g.z / 32.8 * 0.0175;
+
+	auto a_norm = Utility::rsqrt(Utility::sqr(a.x) + Utility::sqr(a.y) + Utility::sqr(a.z));
+
+	a.x *= a_norm;
+	a.y *= a_norm;
+	a.z *= a_norm;
+
+	auto m_norm = Utility::rsqrt(Utility::sqr(m.x) + Utility::sqr(m.y) + Utility::sqr(m.z));
+
+	m.x *= m_norm;
+	m.y *= m_norm;
+	m.z *= m_norm;
+
+	float q0q0(this->ratio.q0 * this->ratio.q0);
+	float q0q1(this->ratio.q0 * this->ratio.q1);
+	float q0q2(this->ratio.q0 * this->ratio.q2);
+	float q0q3(this->ratio.q0 * this->ratio.q3);
+	float q1q1(this->ratio.q1 * this->ratio.q1);
+	float q1q2(this->ratio.q1 * this->ratio.q2);
+	float q1q3(this->ratio.q1 * this->ratio.q3);
+	float q2q2(this->ratio.q2 * this->ratio.q2);
+	float q2q3(this->ratio.q2 * this->ratio.q3);
+	float q3q3(this->ratio.q3 * this->ratio.q3);
+
+	//! compute reference direction of flux
+	float hx = 2 * m.x * (0.5f - q2q2 - q3q3) + 2 * m.y * (q1q2 - q0q3) + 2 * m.z * (q1q3 + q0q2);
+	float hy = 2 * m.x * (q1q2 + q0q3) + 2 * m.y * (0.5f - q1q1 - q3q3) + 2 * m.z * (q2q3 - q0q1);
+	float hz = 2 * m.x * (q1q3 - q0q2) + 2 * m.y * (q2q3 + q0q1) + 2 * m.z * (0.5f - q1q1 - q2q2);
+
+	float bx = sqrt(Utility::sqr(hx) + Utility::sqr(hy));
+	float bz(hz);
+
+	//! estimated direction of gravity and flux (v and w)
+	float vx = 2 * (q1q3 - q0q2);
+	float vy = 2 * (q0q1 + q2q3);
+	float vz = q0q0 - q1q1 - q2q2 + q3q3;
+
+	float wx = 2 * bx * (0.5 - q2q2 - q3q3) + 2 * bz * (q1q3 - q0q2);
+	float wy = 2 * bx * (q1q2 - q0q3) + 2 * bz * (q0q1 + q2q3);
+	float wz = 2 * bx * (q0q2 + q1q3) + 2 * bz * (0.5 - q1q1 - q2q2);
+
+	//! error is sum of cross product between reference direction of fields and direction measured by sensors
+	float ex = (a.y * vz - a.z * vy) + (m.y * wz - m.z * wy);
+	float ey = (a.z * vx - a.x * vz) + (m.z * wx - m.x * wz);
+	float ez = (a.x * vy - a.y * vx) + (m.x * wy - m.y * wx);
+
+	float exInt = 0.0;
+	float eyInt = 0.0;
+	float ezInt = 0.0;
+
+	if (ex != 0.0f && ey != 0.0f && ez != 0.0f)
+	{
+		exInt = exInt + ex * ICM20948::Ki * ICM20948::hT;
+		eyInt = eyInt + ey * ICM20948::Ki * ICM20948::hT;
+		ezInt = ezInt + ez * ICM20948::Ki * ICM20948::hT;
+
+		g.x = g.x + ICM20948::Kp * ex + exInt;
+		g.y = g.y + ICM20948::Kp * ey + eyInt;
+		g.z = g.z + ICM20948::Kp * ez + ezInt;
+	}
+
+	this->ratio.q0 = this->ratio.q0 + (-this->ratio.q1 * g.x - this->ratio.q2 * g.y - this->ratio.q3 * g.z) * ICM20948::hT;
+	this->ratio.q1 = this->ratio.q1 + (this->ratio.q0 * g.x + this->ratio.q2 * g.z - this->ratio.q3 * g.y) * ICM20948::hT;
+	this->ratio.q2 = this->ratio.q2 + (this->ratio.q0 * g.y - this->ratio.q1 * g.z + this->ratio.q3 * g.x) * ICM20948::hT;
+	this->ratio.q3 = this->ratio.q3 + (this->ratio.q0 * g.z + this->ratio.q1 * g.y - this->ratio.q2 * g.x) * ICM20948::hT;
+
+	auto q_norm = Utility::rsqrt(Utility::sqr(this->ratio.q0) + Utility::sqr(this->ratio.q1) + Utility::sqr(this->ratio.q2) + Utility::sqr(this->ratio.q3));
+
+	this->ratio.q0 *= q_norm;
+	this->ratio.q1 *= q_norm;
+	this->ratio.q2 *= q_norm;
+	this->ratio.q3 *= q_norm;
+
+	Angle angle;
+
+	angle.yaw = atan2(-2 * this->ratio.q1 * this->ratio.q2 - 2 * this->ratio.q0 * this->ratio.q3, 2 * this->ratio.q2 * this->ratio.q2 + 2 * this->ratio.q3 * this->ratio.q3 - 1) * 57.3;
+	angle.pitch = asin(-2 * this->ratio.q1 * this->ratio.q3 + 2 * this->ratio.q0 * this->ratio.q2) * 57.3;
+	angle.roll = atan2(2 * this->ratio.q2 * this->ratio.q3 + 2 * this->ratio.q0 * this->ratio.q1, -2 * this->ratio.q1 * this->ratio.q1 - 2 * this->ratio.q2* this->ratio.q2 + 1)* 57.3;
+
+	return angle;
 }
 
 void IMU::Device::init()

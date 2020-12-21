@@ -40,6 +40,24 @@ namespace Utility
                 .arg(display.width)
                 .arg(display.height);
     }
+
+	inline auto rsqrt(float x) -> float //! Fast inverse square root
+	{
+		float half = 0.5f * x;
+		float y = x;
+
+		long i = *(long *)&y;
+		i = 0x5F3759DF - (i >> 1);
+		y = *(float *)&i;
+		y = y * (1.5f - (half * y * y));
+
+		return y;
+	}
+
+	inline auto sqr(float x) -> float
+	{
+		return x * x;
+	}
 }
 
 namespace ICM20948
@@ -161,6 +179,10 @@ namespace ICM20948
 	{
 		const qint32 data_len = 6;
 	}
+
+	const auto Kp = 4.50f; //! proportional gain governs rate of convergence to accelerometer/magnetometer
+	const auto Ki = 1.0f; //! integral gain governs rate of convergence of gyroscope biases
+	const auto hT = 0.024f;
 }
 
 #endif // UTILS_H
