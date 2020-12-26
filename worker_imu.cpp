@@ -17,7 +17,7 @@ void Worker_imu::process()
 		auto angle = this->device->get_angle(gyroscope, accelerometer, magnetometer);
 
         emit data(gyroscope, accelerometer, magnetometer, angle);
-        QThread::msleep(100);
+        QThread::msleep(50);
     }
 
     delete this->device;

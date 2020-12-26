@@ -1,7 +1,5 @@
 #include "imu.h"
 
-#include <utils.h>
-
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -134,21 +132,29 @@ IMU::Device::Angle IMU::Device::get_angle(const IMU::Device::Gyroscope &gyroscop
 	auto a(accelerometer);
 	auto m(magnetometer);
 
-	g.x = g.x / 32.8 * 0.0175;
-	g.y = g.y / 32.8 * 0.0175;
-	g.z = g.z / 32.8 * 0.0175;
+    g.x *= ICM20948::SSF::gyro_1000dps / 32.8 * 0.0175;
+    g.y *= ICM20948::SSF::gyro_1000dps / 32.8 * 0.0175;
+    g.z *= ICM20948::SSF::gyro_1000dps / 32.8 * 0.0175;
+
+    a.x *= ICM20948::SSF::accel_2g;
+    a.y *= ICM20948::SSF::accel_2g;
+    a.z *= ICM20948::SSF::accel_2g;
+
+    m.x /= ICM20948::SSF::mag_4900ut;
+    m.y /= ICM20948::SSF::mag_4900ut;
+    m.z /= ICM20948::SSF::mag_4900ut;
 
 	auto a_norm = Utility::rsqrt(Utility::sqr(a.x) + Utility::sqr(a.y) + Utility::sqr(a.z));
 
-	a.x *= a_norm;
-	a.y *= a_norm;
-	a.z *= a_norm;
+    a.x *= a_norm;
+    a.y *= a_norm;
+    a.z *= a_norm;
 
 	auto m_norm = Utility::rsqrt(Utility::sqr(m.x) + Utility::sqr(m.y) + Utility::sqr(m.z));
 
-	m.x *= m_norm;
-	m.y *= m_norm;
-	m.z *= m_norm;
+    m.x *= m_norm;
+    m.y *= m_norm;
+    m.z *= m_norm;
 
 	float q0q0(this->ratio.q0 * this->ratio.q0);
 	float q0q1(this->ratio.q0 * this->ratio.q1);
@@ -435,21 +441,16 @@ void IMU::Device::calculate_average(Average_data &average, const Sensor_data &va
 	qint32 out_y(0);
 	qint32 out_z(0);
 
-	for (auto i = 0; i < 8; i++)
+    for (auto i = 0; i < ICM20948::avg_max; i++)
 	{
 		out_x += average.buffer[i].x;
 		out_y += average.buffer[i].y;
 		out_z += average.buffer[i].z;
 	}
 
-	out_x >>= 3;
-	out_y >>= 3;
-	out_z >>= 3;
+    result.x = static_cast<qint16>(out_x / ICM20948::avg_max);
+    result.y = static_cast<qint16>(out_y / ICM20948::avg_max);
+    result.z = static_cast<qint16>(out_z / ICM20948::avg_max);
 
-	result.x = static_cast<qint16>(out_x);
-	result.y = static_cast<qint16>(out_y);
-	result.z = static_cast<qint16>(out_z);
-
-	average.index++;
-	average.index &= 0x07;
+    if (++average.index >= ICM20948::avg_max) average.index = 0;
 }

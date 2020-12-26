@@ -57,21 +57,21 @@ Index::Index(QWidget *parent) : QWidget(parent), ui(new Ui::Index)
 
     connect(worker_imu, &Worker_imu::data, this, [&](const IMU::Device::Gyroscope &gyroscope, const IMU::Device::Accelerometer &accelerometer, const IMU::Device::Magnetometer &magnetometer, const IMU::Device::Angle &angle)
     {
-        this->ui->imu_gyroscope_x->setText(QString::number(gyroscope.x));
-        this->ui->imu_gyroscope_y->setText(QString::number(gyroscope.y));
-        this->ui->imu_gyroscope_z->setText(QString::number(gyroscope.z));
+        this->ui->imu_gyroscope_x->setText(QString::number(gyroscope.x, 'f', 2));
+        this->ui->imu_gyroscope_y->setText(QString::number(gyroscope.y, 'f', 2));
+        this->ui->imu_gyroscope_z->setText(QString::number(gyroscope.z, 'f', 2));
 
-        this->ui->imu_accelerometer_x->setText(QString::number(accelerometer.x));
-        this->ui->imu_accelerometer_y->setText(QString::number(accelerometer.y));
-        this->ui->imu_accelerometer_z->setText(QString::number(accelerometer.z));
+        this->ui->imu_accelerometer_x->setText(QString::number(accelerometer.x, 'f', 2));
+        this->ui->imu_accelerometer_y->setText(QString::number(accelerometer.y, 'f', 2));
+        this->ui->imu_accelerometer_z->setText(QString::number(accelerometer.z, 'f', 2));
 
-        this->ui->imu_magnetometer_x->setText(QString::number(magnetometer.x));
-        this->ui->imu_magnetometer_y->setText(QString::number(magnetometer.y));
-        this->ui->imu_magnetometer_z->setText(QString::number(magnetometer.z));
+        this->ui->imu_magnetometer_x->setText(QString::number(magnetometer.x, 'f', 2));
+        this->ui->imu_magnetometer_y->setText(QString::number(magnetometer.y, 'f', 2));
+        this->ui->imu_magnetometer_z->setText(QString::number(magnetometer.z, 'f', 2));
 
-        this->ui->imu_angle_yaw->setText(QString::number(angle.yaw));
-        this->ui->imu_angle_pitch->setText(QString::number(angle.pitch));
-        this->ui->imu_angle_roll->setText(QString::number(angle.roll));
+        this->ui->imu_angle_yaw->setText(QString::number(angle.yaw, 'f', 0));
+        this->ui->imu_angle_pitch->setText(QString::number(angle.pitch, 'f', 0));
+        this->ui->imu_angle_roll->setText(QString::number(angle.roll, 'f', 0));
     });
 
     connect(this, &Index::stop, worker_imu, &Worker_imu::stop, Qt::DirectConnection);

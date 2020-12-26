@@ -72,7 +72,7 @@ namespace ICM20948
         const float  accel_4g     = 8192;  //! LSB/g
         const float  accel_8g     = 4096;  //! LSB/g
         const float  accel_16g    = 2048;  //! LSB/g
-		const float  mag_4900ut   = 0.15;  //! uT/LSB
+        const float  mag_4900ut   = 0.15;  //! uT/LSB
 	}
 
 	namespace Address
@@ -183,6 +183,8 @@ namespace ICM20948
 	const auto Kp = 4.50f; //! proportional gain governs rate of convergence to accelerometer/magnetometer
 	const auto Ki = 1.0f; //! integral gain governs rate of convergence of gyroscope biases
 	const auto hT = 0.024f;
+
+    const auto avg_max = 8;
 }
 
 #endif // UTILS_H

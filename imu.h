@@ -5,6 +5,8 @@
 #include <QVector>
 #include <exception>
 
+#include <utils.h>
+
 namespace IMU
 {
 	struct i2c_exception : public std::exception
@@ -88,7 +90,7 @@ namespace IMU
 			Average_data() : index(0), buffer{} {}
 
 			quint8 index;
-			Sensor_data buffer[8];
+            Sensor_data buffer[ICM20948::avg_max];
 		};
 
 		struct Angle_ratio
