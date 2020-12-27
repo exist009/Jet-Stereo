@@ -42,7 +42,8 @@ HEADERS += \
 	camera.h \
 	utils.h \
     worker_imu.h \
-    worker_camera.h
+    worker_camera.h \
+    camera_sync.h
 
 FORMS += \
 	index.ui

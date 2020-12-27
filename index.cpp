@@ -6,6 +6,8 @@
 #include <worker_camera.h>
 #include <worker_imu.h>
 
+#include <camera_sync.h>
+
 Index::Index(QWidget *parent) : QWidget(parent), ui(new Ui::Index)
 {
     ui->setupUi(this);
@@ -31,6 +33,8 @@ Index::Index(QWidget *parent) : QWidget(parent), ui(new Ui::Index)
 
         connect(worker_camera, &Worker_camera::frame, this, [&, sensor](const cv::Mat &frame)
         {
+            // cv::imwrite("", frame);
+
             auto image = QImage(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
 
             if (sensor == Sensor::Left) this->ui->sensor_0->setPixmap(QPixmap::fromImage(image));
@@ -43,6 +47,8 @@ Index::Index(QWidget *parent) : QWidget(parent), ui(new Ui::Index)
 
         thread_camera->start();
     }
+
+    Camera_sync::init();
 
     //! IMU
 
