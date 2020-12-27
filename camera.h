@@ -26,4 +26,6 @@ signals:
 public slots:
 };
 
+Q_DECLARE_METATYPE(cv::Mat)
+
 #endif // CAMERA_H

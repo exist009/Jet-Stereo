@@ -1,0 +1,9 @@
+[Unit]
+Description=PWM_FAN
+
+[Service]
+Type=simple
+ExecStart=/home/exist009/workspace/Jet-Stereo/fan/fan.sh
+
+[Install]
+WantedBy=multi-user.target
