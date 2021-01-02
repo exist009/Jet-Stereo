@@ -1,6 +1,7 @@
 #include "worker_camera.h"
 
 #include <camera_sync.h>
+#include <fps.h>
 
 #include <QDateTime>
 #include <QThread>
@@ -10,12 +11,11 @@ Worker_camera::~Worker_camera() { }
 
 void Worker_camera::process()
 {
-    this->camera = new Camera(this->sensor, { 320, 240 }, { 320, 240 }, 30);
+	this->camera = new Camera(this->sensor, { 320, 240 }, { 320, 240 }, 30);
 
     connect(this->camera, &Camera::frame, this, &Worker_camera::frame);
 
-	auto previous_frame_time(QDateTime::currentMSecsSinceEpoch());
-	auto current_frame_time(previous_frame_time);
+	Fps fps;
 
     while (this->run)
     {
@@ -23,11 +23,7 @@ void Worker_camera::process()
 
         this->camera->capture();
 
-		current_frame_time = QDateTime::currentMSecsSinceEpoch();
-
-		emit fps(1000 / (current_frame_time - previous_frame_time));
-
-		previous_frame_time = current_frame_time;
+		emit framerate(fps.get());
 
 		Camera_sync::inc_index(this->sensor);
     }

@@ -33,7 +33,7 @@ Index::Index(QWidget *parent) : QWidget(parent), ui(new Ui::Index)
         connect(worker_camera, &Worker_camera::finished, thread_camera, &QThread::quit, Qt::DirectConnection);
         connect(worker_camera, &Worker_camera::finished, worker_camera, &Worker_camera::deleteLater, Qt::DirectConnection);
 
-		connect(worker_camera, &Worker_camera::fps, this, [&, sensor](qint32 fps)
+		connect(worker_camera, &Worker_camera::framerate, this, [&, sensor](qint32 fps)
 		{
 			if (sensor == Sensor::Left) this->ui->sensor_0_fps->setText(QString("%1 FPS").arg(fps));
 			if (sensor == Sensor::Right)this->ui->sensor_1_fps->setText(QString("%1 FPS").arg(fps));

@@ -15,7 +15,7 @@ public:
 signals:
     void finished();
 	void frame(qint64 index, const cv::Mat &frame);
-	void fps(qint32 fps);
+	void framerate(qint32 fps);
 
 public slots:
     void process();

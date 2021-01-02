@@ -34,7 +34,8 @@ SOURCES += \
 	index.cpp \
 	camera.cpp \
     worker_imu.cpp \
-    worker_camera.cpp
+    worker_camera.cpp \
+    fps.cpp
 
 HEADERS += \
 	imu.h \
@@ -43,7 +44,8 @@ HEADERS += \
 	utils.h \
     worker_imu.h \
     worker_camera.h \
-    camera_sync.h
+    camera_sync.h \
+    fps.h
 
 FORMS += \
 	index.ui
