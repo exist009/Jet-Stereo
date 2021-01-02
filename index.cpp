@@ -19,6 +19,8 @@ Index::Index(QWidget *parent) : QWidget(parent), ui(new Ui::Index)
     qRegisterMetaType<IMU::Device::Magnetometer>();
 	qRegisterMetaType<IMU::Device::Angle>();
 
+	Camera_sync::init();
+
     for (auto i = 0; i < 2; i++)
     {
         auto sensor = static_cast<Sensor>(i);
@@ -31,9 +33,17 @@ Index::Index(QWidget *parent) : QWidget(parent), ui(new Ui::Index)
         connect(worker_camera, &Worker_camera::finished, thread_camera, &QThread::quit, Qt::DirectConnection);
         connect(worker_camera, &Worker_camera::finished, worker_camera, &Worker_camera::deleteLater, Qt::DirectConnection);
 
-        connect(worker_camera, &Worker_camera::frame, this, [&, sensor](const cv::Mat &frame)
+		connect(worker_camera, &Worker_camera::fps, this, [&, sensor](qint32 fps)
+		{
+			if (sensor == Sensor::Left) this->ui->sensor_0_fps->setText(QString("%1 FPS").arg(fps));
+			if (sensor == Sensor::Right)this->ui->sensor_1_fps->setText(QString("%1 FPS").arg(fps));
+		});
+
+		connect(worker_camera, &Worker_camera::frame, this, [&, sensor](qint64 index, const cv::Mat &frame)
         {
             // cv::imwrite("", frame);
+
+			//qDebug() << "Sensor[" << static_cast<qint32>(sensor) << "] index:" << index;
 
             auto image = QImage(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
 
@@ -48,8 +58,6 @@ Index::Index(QWidget *parent) : QWidget(parent), ui(new Ui::Index)
         thread_camera->start();
     }
 
-    Camera_sync::init();
-
     //! IMU
 
     auto worker_imu = new Worker_imu;
@@ -63,21 +71,21 @@ Index::Index(QWidget *parent) : QWidget(parent), ui(new Ui::Index)
 
     connect(worker_imu, &Worker_imu::data, this, [&](const IMU::Device::Gyroscope &gyroscope, const IMU::Device::Accelerometer &accelerometer, const IMU::Device::Magnetometer &magnetometer, const IMU::Device::Angle &angle)
     {
-        this->ui->imu_gyroscope_x->setText(QString::number(gyroscope.x, 'f', 2));
-        this->ui->imu_gyroscope_y->setText(QString::number(gyroscope.y, 'f', 2));
-        this->ui->imu_gyroscope_z->setText(QString::number(gyroscope.z, 'f', 2));
+		this->ui->imu_gyroscope_x->setText(QString("%1 dps").arg(gyroscope.x, 0, 'f', 2));
+		this->ui->imu_gyroscope_y->setText(QString("%1 dps").arg(gyroscope.y, 0, 'f', 2));
+		this->ui->imu_gyroscope_z->setText(QString("%1 dps").arg(gyroscope.z, 0, 'f', 2));
 
-        this->ui->imu_accelerometer_x->setText(QString::number(accelerometer.x, 'f', 2));
-        this->ui->imu_accelerometer_y->setText(QString::number(accelerometer.y, 'f', 2));
-        this->ui->imu_accelerometer_z->setText(QString::number(accelerometer.z, 'f', 2));
+		this->ui->imu_accelerometer_x->setText(QString("%1 g").arg(accelerometer.x, 0, 'f', 2));
+		this->ui->imu_accelerometer_y->setText(QString("%1 g").arg(accelerometer.y, 0, 'f', 2));
+		this->ui->imu_accelerometer_z->setText(QString("%1 g").arg(accelerometer.z, 0, 'f', 2));
 
-        this->ui->imu_magnetometer_x->setText(QString::number(magnetometer.x, 'f', 2));
-        this->ui->imu_magnetometer_y->setText(QString::number(magnetometer.y, 'f', 2));
-        this->ui->imu_magnetometer_z->setText(QString::number(magnetometer.z, 'f', 2));
+		this->ui->imu_magnetometer_x->setText(QString("%1 uT").arg(magnetometer.x, 0, 'f', 2));
+		this->ui->imu_magnetometer_y->setText(QString("%1 uT").arg(magnetometer.y, 0, 'f', 2));
+		this->ui->imu_magnetometer_z->setText(QString("%1 uT").arg(magnetometer.z, 0, 'f', 2));
 
-        this->ui->imu_angle_yaw->setText(QString::number(angle.yaw, 'f', 0));
-        this->ui->imu_angle_pitch->setText(QString::number(angle.pitch, 'f', 0));
-        this->ui->imu_angle_roll->setText(QString::number(angle.roll, 'f', 0));
+		this->ui->imu_angle_yaw->setText(QString("%1°").arg(angle.yaw, 0, 'f', 0));
+		this->ui->imu_angle_pitch->setText(QString("%1°").arg(angle.pitch, 0, 'f', 0));
+		this->ui->imu_angle_roll->setText(QString("%1°").arg(angle.roll, 0, 'f', 0));
     });
 
     connect(this, &Index::stop, worker_imu, &Worker_imu::stop, Qt::DirectConnection);

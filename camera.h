@@ -19,9 +19,10 @@ public:
 
 private:
     cv::VideoCapture sensor;
+	qint64 index;
 
 signals:
-    void frame(const cv::Mat &frame);
+	void frame(qint64 index, const cv::Mat &frame);
 
 public slots:
 };

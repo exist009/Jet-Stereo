@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-Camera::Camera(Sensor sensor, const Resolution &camera, const Resolution &display, qint32 framerate, QObject *parent) : QObject(parent)
+Camera::Camera(Sensor sensor, const Resolution &camera, const Resolution &display, qint32 framerate, QObject *parent) : QObject(parent), index(0)
 {
     this->sensor.open(Utility::Pipeline(sensor, camera, framerate, Flip::Rotate180, display).toStdString(), cv::CAP_GSTREAMER);
 
@@ -29,7 +29,7 @@ bool Camera::capture()
 
     cv::cvtColor(mat, mat, cv::COLOR_BGR2RGB);
 
-    emit frame(mat);
+	emit frame(this->index++, mat);
 
     return true;
 }
